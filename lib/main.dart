@@ -317,7 +317,7 @@ class AltitudeState extends State<Altitude> {
     await mapController.clearPolylines();
 
     if (_plotAllAltitudes) {
-      altitudes = List<int>.generate(5, (i) => 500 + 100 * i);
+      altitudes = List<int>.generate(6, (i) => 500 + 100 * i);
     }
     else {
       altitudes = [altitude];
