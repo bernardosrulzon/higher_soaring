@@ -9,6 +9,7 @@ import 'dart:async';
 import 'airport.dart';
 import 'glide_parameters.dart';
 import 'flight_status.dart';
+import 'utils.dart';
 
 var f = NumberFormat("#,##0", "en_US");
 
