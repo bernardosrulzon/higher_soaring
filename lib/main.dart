@@ -86,7 +86,7 @@ class AltitudeState extends State<Altitude> {
             onPressed: altitude > 500 && !_plotAllAltitudes ? _decrementAltitude : null,
           ),
           Center(
-          child: Text("${altitude.toString()}m", textAlign: TextAlign.center,)
+          child: Text(!_plotAllAltitudes ? "${altitude.toString()}m" : "500-1500m", textAlign: TextAlign.center,)
           ),
           IconButton(
             icon: Icon(Icons.arrow_forward_ios),
