@@ -24,8 +24,6 @@ dependencies:
         url: git://github.com/irevans/plugins/
         path: packages/google_maps_flutter
         ref: google_maps_polyline
-  shared_preferences: ^0.4.3
-  permission_handler: ^2.1.2
   latlong: ^0.6.1
   geolocator: ^2.1.1
   intl: ^0.15.7

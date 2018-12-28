@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:latlong/latlong.dart' as lat_lng;
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+
 import 'dart:math' as math;
 import 'dart:async';
+
+import 'airport.dart';
+import 'glide_parameters.dart';
+import 'flight_status.dart';
 
 var f = new NumberFormat("#,##0", "en_US");
 
 void main() {
-  //Future<Map<PermissionGroup, PermissionStatus>> permissions = PermissionHandler().requestPermissions([PermissionGroup.location]);
   runApp(MaterialApp(
     title: 'Higher Soaring',
     theme: ThemeData(
@@ -33,33 +36,37 @@ class AltitudeState extends State<Altitude> {
 
   bool _flightMode = false;
   bool _showControls = true;
+  bool _plotAllAltitudes = false;
 
   final lat_lng.Distance distance = lat_lng.Distance();
   final p1 = lat_lng.LatLng(-22.4291879,-47.5618677);
 
-  final headings = List<double>.generate(361, (i) => 1.0 * i);
+  final headings = List<double>.generate(37, (i) => 10.0 * i);
+
+  Airport airport = Airport("Rio Claro", "SDRK", 619, LatLng(-22.4291879,-47.5618677));
 
   List<GlideParameters> glideParameters;
 
-  var windDirection = GlideParameters("Wind Direction", Icons.cloud_queue, 0.0, 0.0, 359.0, 360, "º");
+  var windDirection = GlideParameters("Wind Direction", Icons.cloud_queue, 0.0, 0.0, 360.0, 72, "º");
   var windSpeed = GlideParameters("Wind Speed", Icons.arrow_forward, 0.0, 0.0, 15.0, 15, "m/s");
   var glideSpeed = GlideParameters("Best Glide", Icons.local_airport, 85.0, 70.0, 100.0, 30, "km/h");
   var glideRatio = GlideParameters("Glide Ratio", Icons.flight_land, 27.0, 25.0, 40.0, 15, ":1");
 
   var geolocator = Geolocator();
+  StreamSubscription<Position> _positionStreamSubscription;
+  final locationOptions = LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
   Position _position;
+
   GoogleMapController mapController;
 
-  Stream<Position> getCurrentPosition() {
-    var locationOptions = LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
+  setPositionStream() {
     final Stream<Position> positionStream = Geolocator().getPositionStream(locationOptions);
-    StreamSubscription<Position> _positionStreamSubscription = positionStream.listen((Position position) => setState(() => _position = position));
+    _positionStreamSubscription = positionStream.listen((Position position) => setState(() => _position = position));
   }
 
   @override
   void initState() {
     super.initState();
-    getCurrentPosition();
   }
 
   @override
@@ -76,7 +83,7 @@ class AltitudeState extends State<Altitude> {
           IconButton(
             icon: Icon(Icons.arrow_back_ios),
             tooltip: 'Back',
-            onPressed: altitude > 500 ? _decrementAltitude : null,
+            onPressed: altitude > 500 && !_plotAllAltitudes ? _decrementAltitude : null,
           ),
           Center(
           child: Text("${altitude.toString()}m", textAlign: TextAlign.center,)
@@ -84,7 +91,7 @@ class AltitudeState extends State<Altitude> {
           IconButton(
             icon: Icon(Icons.arrow_forward_ios),
             tooltip: 'Forward',
-            onPressed: _incrementAltitude,
+            onPressed: !_plotAllAltitudes ? _incrementAltitude : null,
           )
         ],
       ),
@@ -145,7 +152,7 @@ class AltitudeState extends State<Altitude> {
                   myLocationEnabled: true,
                   mapType: MapType.hybrid,
                   cameraPosition: CameraPosition(
-                    target: LatLng(-22.4291879,-47.5618677),
+                    target: airport.coordinates,
                     zoom: 12.0,
                   ),
                 ),
@@ -155,19 +162,24 @@ class AltitudeState extends State<Altitude> {
         ),
       ),
       drawer: Drawer(
-        child: Column(
+        child: ListView(
           children: <Widget>[
             UserAccountsDrawerHeader(
                 accountName: Text(
                   "Bernardo Srulzon",
                   style: TextStyle(
                       fontSize: 18.0, fontWeight: FontWeight.w500),
+                ),
+                accountEmail: Text(
+                  "bernardosrulzon@gmail.com",
+                  style: TextStyle(
+                      fontSize: 14.0, fontWeight: FontWeight.w300),
                 )),
             SwitchListTile(
-              title: Text('Flight mode'),
+              title: Text("I'm flying!"),
               value: _flightMode,
-              onChanged: (bool value) { setState(() { _flightMode = value; }); },
-              secondary: Icon(Icons.flight),
+              onChanged: (bool value) => _flightModeToggle(value),
+              secondary: Icon(Icons.flight_takeoff),
             ),
             SwitchListTile(
               title: Text('Show controls'),
@@ -175,33 +187,85 @@ class AltitudeState extends State<Altitude> {
               onChanged: (bool value) { setState(() { _showControls = value; }); },
               secondary: Icon(Icons.settings),
             ),
+            SwitchListTile(
+              title: Text('Plot all altitudes'),
+              value: _plotAllAltitudes,
+              onChanged: (bool value) => _allAltitudesToggle(value),
+              secondary: Icon(Icons.all_inclusive),
+            ),
+            ListTile(
+              leading: Icon(Icons.map),
+              title: Text('Coordinates'),
+              subtitle: Text(_locationData('latlon')),
+            ),
+            ListTile(
+              leading: Icon(Icons.navigation),
+              title: Text('Altitude'),
+              subtitle: Text("MSL: ${_locationData('altitude')}\nAGL: ${_locationData('height')}"),
+            ),
+            ListTile(
+              leading: Icon(_positionStreamSubscription == null || _positionStreamSubscription.isPaused ? Icons.gps_off : Icons.gps_fixed),
+              title: Text('Location updates'),
+              subtitle: Text(_positionStreamSubscription == null || _positionStreamSubscription.isPaused ? 'Disabled' : 'Enabled'),
+            ),
           ]
         ),
       ),
     );
   }
 
+  void _allAltitudesToggle(value) {
+    setState(() {
+      _plotAllAltitudes = value;
+      _onMapCreated(mapController);
+    });
+  }
+
+  void _flightModeToggle(value) {
+    setState(() {
+      _flightMode = value;
+
+      if(value) {
+        if (_positionStreamSubscription == null) {
+          setPositionStream();
+        }
+        _positionStreamSubscription.resume();
+      }
+      else if (_positionStreamSubscription != null) {
+        _positionStreamSubscription.pause();
+      }
+    });
+  }
+
   String _locationData(type) {
-    if(_position == null) {
+    if (_position == null) {
       return "Unknown!";
     }
 
-    if(type == 'latlon') {
-      return _position.toString();
+    if (type == 'latlon') {
+      return "Latitude: ${_position.latitude.toStringAsFixed(4)}\nLongitude: ${_position.longitude.toStringAsFixed(4)}";
     }
-    else if(type == 'altitude') {
-      return "Altitude: ${_position?.altitude?.toStringAsFixed(0)}m";
+    else {
+      if (_position.altitude == null) {
+        return "Unknown!";
+      }
+      else if (type == 'altitude') {
+        return "${_position?.altitude?.toStringAsFixed(0)}m";
+      }
+      else if (type == 'height') {
+        return "${(_position.altitude - airport.altitudeInMeters).toStringAsFixed(0)}m";
+      }
     }
   }
 
   _flightStatus() {
-    if(_position == null) {
-      return FlightStatus("Warning", Icons.warning, Colors.amber, "Unable to fetch position. Stay alert :)");
+    if(_position?.altitude == null || (_position.altitude - airport.altitudeInMeters) < 0) {
+      return FlightStatus("Warning!", Icons.warning, Colors.amber, "Unable to fetch position or altitude");
     }
 
-    var heading = glideHeading(LatLng(-22.4291879,-47.5618677), LatLng(_position.latitude, _position.longitude));
-    var maximumGlidingDistance = glideDistance(heading, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value, _position.altitude.round(), patternAltitude);
-    var distanceToRunway = distance.as(lat_lng.LengthUnit.Meter, lat_lng.LatLng(-22.4291879,-47.5618677), lat_lng.LatLng(_position.latitude, _position.longitude));
+    var heading = glideHeading(airport.coordinates, LatLng(_position.latitude, _position.longitude));
+    var maximumGlidingDistance = glideDistance(heading, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value, (_position.altitude - airport.altitudeInMeters).round(), patternAltitude);
+    var distanceToRunway = distance.as(lat_lng.LengthUnit.Meter, lat_lng.LatLng(airport.coordinates.latitude,airport.coordinates.longitude), lat_lng.LatLng(_position.latitude, _position.longitude));
 
     if(maximumGlidingDistance > distanceToRunway) {
       return FlightStatus("Good!", Icons.check_circle, Colors.green, "You still have an additional ${f.format((maximumGlidingDistance - distanceToRunway).round())}m");
@@ -225,43 +289,55 @@ class AltitudeState extends State<Altitude> {
   }
 
   void _incrementAltitude() {
-      altitude += 100;
+      setState(() {
+        altitude += 100;
+      });
       _onMapCreated(mapController);
   }
 
   void _decrementAltitude() {
-      altitude -= 100;
+      setState(() {
+        altitude -= 100;
+      });
       _onMapCreated(mapController);
   }
 
-  void _onMapCreated(GoogleMapController controller) {
-    setState(() {
-      mapController = controller;
+  void _onMapCreated(GoogleMapController controller) async {
+    List<int> altitudes;
+    List<LatLng> points;
 
-      final List<LatLng> points = [];
+    mapController = controller;
+    await mapController.clearPolylines();
 
+    if (_plotAllAltitudes) {
+      altitudes = List<int>.generate(5, (i) => 500 + 100 * i);
+    }
+    else {
+      altitudes = [altitude];
+    }
+
+    altitudes.forEach((alt) {
+      points = [];
       headings.forEach((hdg) {
-        var distanceToGlide = glideDistance(hdg, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value, altitude, patternAltitude);
+        var distanceToGlide = glideDistance(hdg, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value, alt, patternAltitude);
         var p2 = distance.offset(p1, distanceToGlide, hdg);
         points.add(LatLng(p2.latitude, p2.longitude));
       });
-
       _addPolyline(points);
-
     });
   }
 
-  void _addPolyline(points) async {
-    await mapController.clearPolylines();
-    await mapController.addPolyline(
-        PolylineOptions(
-            width: 5,
-            points: points,
-            geodesic: false,
-            startCap: Cap.roundCap,
-            endCap: Cap.roundCap,
-            color: Colors.indigoAccent.value
-        )
+  _addPolyline(List<LatLng> points) {
+    mapController.addPolyline(
+      PolylineOptions(
+          width: 5,
+          points: points,
+          geodesic: false,
+          startCap: Cap.roundCap,
+          endCap: Cap.roundCap,
+          jointType: 2,
+          color: Colors.indigoAccent.value
+      )
     );
   }
 
@@ -301,32 +377,3 @@ class AltitudeState extends State<Altitude> {
   }
 
 }
-
-class GlideParameters {
-  String name;
-  IconData icon;
-  double value;
-  double min;
-  double max;
-  int divisions;
-  String unit;
-
-  GlideParameters(this.name, this.icon, this.value, this.min, this.max, this.divisions, this.unit);
-}
-
-class FlightStatus {
-  String status;
-  IconData icon;
-  MaterialColor color;
-  String distanceAdvisory;
-
-  FlightStatus(this.status, this.icon, this.color, this.distanceAdvisory);
-}
-
-/*ListView(
-children: <Widget>[
-Text(_locationData('latlon')),
-Text(_locationData('altitude')),
-Text(_locationData('heading')),
-],
-),*/
