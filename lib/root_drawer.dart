@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'airport.dart';
 import 'my_inherited_widget.dart';
 
 class RootDrawer extends StatefulWidget {

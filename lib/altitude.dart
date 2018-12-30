@@ -21,8 +21,8 @@ class AltitudeState extends State<Altitude> {
 
   List<GlideParameters> glideParameters;
 
-  var windDirection = GlideParameters("Wind Direction", Icons.cloud_queue, 0.0, 0.0, 360.0, 72, "º");
   var windSpeed = GlideParameters("Wind Speed", Icons.arrow_forward, 0.0, 0.0, 15.0, 15, "m/s");
+  var windDirection = GlideParameters("Wind Direction", Icons.cloud_queue, 0.0, 0.0, 360.0, 72, "º");
   var glideSpeed = GlideParameters("Best Glide", Icons.local_airport, 85.0, 70.0, 100.0, 30, "km/h");
   var glideRatio = GlideParameters("Glide Ratio", Icons.flight_land, 27.0, 25.0, 40.0, 15, ":1");
   final lat_lng.Distance distance = lat_lng.Distance();
@@ -35,7 +35,7 @@ class AltitudeState extends State<Altitude> {
 
     return MyInheritedWidget(
       child: Scaffold(
-        //appBar: _buildAppBar(),
+        appBar: _buildAppBar(),
         body: _buildBody(variableToUse),
         drawer: RootDrawer(),
       ),
@@ -105,7 +105,9 @@ class AltitudeState extends State<Altitude> {
   }
 
   Widget _buildAppBar() {
-    return Builder(
+    return PreferredSize(
+      preferredSize: Size.fromHeight(kToolbarHeight),
+      child: Builder(
         builder: (BuildContext context) {
           final state = MyInheritedWidget.of(context);
           return AppBar(
@@ -114,7 +116,7 @@ class AltitudeState extends State<Altitude> {
               IconButton(
                 icon: Icon(Icons.arrow_back_ios),
                 tooltip: 'Back',
-                onPressed: () => (state.altitude > 500 && !state.showAllAltitudes) ? state.decrementAltitude : null,
+                onPressed: state.altitude > 500 && !state.showAllAltitudes ? () => state.decrementAltitude() : null,
               ),
               Center(
                   child: Text(
@@ -124,11 +126,12 @@ class AltitudeState extends State<Altitude> {
               IconButton(
                 icon: Icon(Icons.arrow_forward_ios),
                 tooltip: 'Forward',
-                onPressed: () => !state.showAllAltitudes ? state.incrementAltitude : null,
+                onPressed: !state.showAllAltitudes ? () => state.incrementAltitude() : null,
               )
             ],
           );
         }
+      ),
     );
   }
 

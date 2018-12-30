@@ -81,13 +81,13 @@ class MyInheritedWidgetState extends State<MyInheritedWidget>{
     });
   }
 
-  void incrementAltitude(){
+  void incrementAltitude() {
     setState((){
       _altitude += 100;
     });
   }
 
-  void decrementAltitude(){
+  void decrementAltitude() {
     setState((){
       _altitude -= 100;
     });

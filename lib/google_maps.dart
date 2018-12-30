@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:latlong/latlong.dart' as lat_lng;
+import 'package:quiver/core.dart';
+import 'package:quiver/collection.dart';
 
 import 'glide_parameters.dart';
 import 'my_inherited_widget.dart';
@@ -23,6 +25,8 @@ class GoogleMapsState extends State<GoogleMaps> {
   final headings = List<double>.generate(37, (i) => 10.0 * i);
   final lat_lng.Distance distance = lat_lng.Distance();
   final patternAltitude = 400;
+
+  LruMap<int, List<LatLng>> _cacheMap = LruMap<int, List<LatLng>>(maximumSize: 1000);
 
   @override
   void didChangeDependencies() {
@@ -77,13 +81,20 @@ class GoogleMapsState extends State<GoogleMaps> {
     }
 
     altitudes.forEach((alt) {
-      points = [];
-      headings.forEach((hdg) {
-        var distanceToGlide = glideDistance(hdg, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value, alt, patternAltitude);
-        var p2 = distance.offset(p1, distanceToGlide, hdg);
-        points.add(LatLng(p2.latitude, p2.longitude));
-        });
-        setState(() {
+      final _hashCode = hashObjects([airport.icao, alt, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value]);
+      if (_cacheMap.containsKey(_hashCode)) {
+        points = _cacheMap[_hashCode];
+      }
+      else {
+        points = [];
+        headings.forEach((hdg) {
+          var distanceToGlide = glideDistance(hdg, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value, alt, patternAltitude);
+          var p2 = distance.offset(p1, distanceToGlide, hdg);
+          points.add(LatLng(p2.latitude, p2.longitude));
+          });
+        _cacheMap[_hashCode] = points;
+      }
+      setState(() {
         _addPolyline(points);
       });
     });
