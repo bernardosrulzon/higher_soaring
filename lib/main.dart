@@ -11,7 +11,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.indigo,
       ),
-      home: Altitude(),
+      initialRoute: '/',
+      routes: {
+        '/': (BuildContext context) => Altitude(),
+      }
     );
   }
 }

@@ -30,7 +30,7 @@ class AltitudeState extends State<Altitude> {
 
   @override
   Widget build(BuildContext context) {
-    glideParameters ??= [windDirection, windSpeed, glideSpeed, glideRatio];
+    glideParameters ??= [windSpeed, windDirection, glideSpeed, glideRatio];
     var variableToUse = glideParameters[0];
 
     return MyInheritedWidget(
