@@ -1,5 +1,8 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math' as math;
+import 'package:intl/intl.dart';
+
+var f = NumberFormat("#,##0", "en_US");
 
 double toRadians(double angle) {
   return angle * math.pi / 180.0;
