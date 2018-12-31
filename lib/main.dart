@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'altitude.dart';
+import 'tracking.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,6 +15,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (BuildContext context) => Altitude(),
+        '/flight-track': (BuildContext context) => Tracking(),
       }
     );
   }

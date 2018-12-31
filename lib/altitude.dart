@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:latlong/latlong.dart' as lat_lng;
+import 'package:quiver/core.dart';
+import 'package:quiver/collection.dart';
 
 import 'airport.dart';
 import 'google_maps.dart';
@@ -96,7 +98,7 @@ class AltitudeState extends State<Altitude> {
                 ),
               ),
               Flexible(
-                child: GoogleMaps(windDirection: windDirection, windSpeed: windSpeed, glideSpeed: glideSpeed, glideRatio: glideRatio),
+                child: GoogleMaps(center: state.airport.coordinates, polylines: _calculatePolylines(state.airport, state.showAllAltitudes, state.altitude), clearAll: true),
               ),
             ]),
           );
@@ -135,6 +137,37 @@ class AltitudeState extends State<Altitude> {
     );
   }
 
+  List<List<LatLng>> _calculatePolylines(Airport airport, bool showAllAltitudes, int altitude) {
+    List<int> altitudes;
+    List<LatLng> points = [];
+    List<List<LatLng>> polylines = [];
+    LruMap<int, List<LatLng>> _cacheMap = LruMap<int, List<LatLng>>(maximumSize: 1000);
+    final p1 = lat_lng.LatLng(airport.coordinates.latitude, airport.coordinates.longitude);
+    final headings = List<double>.generate(37, (i) => 10.0 * i);
+
+    if (showAllAltitudes) {
+      altitudes = List<int>.generate(6, (i) => 500 + 100 * i);
+    } else {
+      altitudes = [altitude];
+    }
+
+    altitudes.forEach((alt) {
+      final _hashCode = hashObjects([airport.icao, alt, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value]);
+      if (!_cacheMap.containsKey(_hashCode)) {
+        points = [];
+        headings.forEach((hdg) {
+          var distanceToGlide = glideDistance(hdg, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value, alt, patternAltitude);
+          var p2 = distance.offset(p1, distanceToGlide, hdg);
+          points.add(LatLng(p2.latitude, p2.longitude));
+        });
+        _cacheMap[_hashCode] = points;
+      }
+      polylines.add(_cacheMap[_hashCode]);
+    });
+
+    return polylines;
+  }
+
   _flightStatus(state) {
     Airport airport = state.airport;
     if (state.position?.altitude == null ||
@@ -142,7 +175,7 @@ class AltitudeState extends State<Altitude> {
       return FlightStatus("Warning!", Icons.warning, Colors.amber, "Unable to fetch position or altitude");
     }
 
-    var heading = glideHeading(airport.coordinates, LatLng(state.position.latitude, state.position.longitude));
+    var heading = glideHeading(airport.coordinates, state.myLocation);
     var maximumGlidingDistance = glideDistance(heading, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value, (state.position.altitude - airport.altitudeInMeters).round(), patternAltitude);
     var distanceToRunway = distance.as(lat_lng.LengthUnit.Meter, lat_lng.LatLng(airport.coordinates.latitude, airport.coordinates.longitude), lat_lng.LatLng(state.position.latitude, state.position.longitude));
 

@@ -10,6 +10,8 @@ class RootDrawer extends StatefulWidget {
 }
 
 class RootDrawerState extends State<RootDrawer> {
+  bool _trackMyFlight = false;
+
   @override
   Widget build(BuildContext context) {
     final MyInheritedWidgetState state = MyInheritedWidget.of(context);
@@ -25,6 +27,7 @@ class RootDrawerState extends State<RootDrawer> {
               "bernardosrulzon@gmail.com",
               style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300),
             )),
+        _buildTrackMyFlight(),
         SwitchListTile(
           title: Text("I'm flying!"),
           value: state.flightMode,
@@ -106,5 +109,15 @@ class RootDrawerState extends State<RootDrawer> {
       }
     }
     return "Unknown!";
+  }
+
+  _buildTrackMyFlight() {
+    return ListTile(
+      leading: Icon(Icons.navigation),
+      title: _trackMyFlight ? Text("Track my flight"),
+      onTap: () {
+        Navigator.pushNamed(context, '/flight-track');
+      },
+    );
   }
 }
