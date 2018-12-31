@@ -4,7 +4,8 @@ import 'package:collection/collection.dart';
 import 'dart:math';
 
 class GoogleMaps extends StatefulWidget {
-  GoogleMaps({Key key, this.center, this.polylines, this.clearAll}) : super(key: key);
+  GoogleMaps({Key key, this.center, this.polylines, this.clearAll})
+      : super(key: key);
 
   final LatLng center;
   final bool clearAll;
@@ -21,7 +22,7 @@ class GoogleMapsState extends State<GoogleMaps> {
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if(mapController != null) {
+    if (mapController != null) {
       if (!eq(oldWidget.polylines, widget.polylines)) {
         addPolylines(widget.polylines, widget.clearAll);
       }
@@ -63,18 +64,18 @@ class GoogleMapsState extends State<GoogleMaps> {
   }
 
   void addPolylines(List<List<LatLng>> polylines, bool clearAll) async {
-    if(clearAll) {
+    if (clearAll) {
       await mapController.clearPolylines();
     }
     polylines.forEach((polyline) {
       mapController.addPolyline(PolylineOptions(
-        width: 5,
-        points: polyline,
-        geodesic: false,
-        startCap: Cap.roundCap,
-        endCap: Cap.roundCap,
-        jointType: 2,
-        color: Colors.indigoAccent.value));
+          width: 5,
+          points: polyline,
+          geodesic: false,
+          startCap: Cap.roundCap,
+          endCap: Cap.roundCap,
+          jointType: 2,
+          color: Colors.indigoAccent.value));
     });
     setState(() {});
   }
@@ -83,8 +84,12 @@ class GoogleMapsState extends State<GoogleMaps> {
     mapController.animateCamera(
       CameraUpdate.newLatLngBounds(
         LatLngBounds(
-          southwest: LatLng(flat_polylines.map((i) => i.latitude).toList().reduce(min), flat_polylines.map((i) => i.longitude).toList().reduce(min)),
-          northeast: LatLng(flat_polylines.map((i) => i.latitude).toList().reduce(max), flat_polylines.map((i) => i.longitude).toList().reduce(max)),
+          southwest: LatLng(
+              flat_polylines.map((i) => i.latitude).toList().reduce(min),
+              flat_polylines.map((i) => i.longitude).toList().reduce(min)),
+          northeast: LatLng(
+              flat_polylines.map((i) => i.latitude).toList().reduce(max),
+              flat_polylines.map((i) => i.longitude).toList().reduce(max)),
         ),
         32.0,
       ),

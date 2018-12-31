@@ -20,13 +20,16 @@ class Altitude extends StatefulWidget {
 }
 
 class AltitudeState extends State<Altitude> {
-
   List<GlideParameters> glideParameters;
 
-  var windSpeed = GlideParameters("Wind Speed", Icons.arrow_forward, 0.0, 0.0, 15.0, 15, "m/s");
-  var windDirection = GlideParameters("Wind Direction", Icons.cloud_queue, 0.0, 0.0, 360.0, 72, "º");
-  var glideSpeed = GlideParameters("Best Glide", Icons.local_airport, 85.0, 70.0, 100.0, 30, "km/h");
-  var glideRatio = GlideParameters("Glide Ratio", Icons.flight_land, 27.0, 25.0, 40.0, 15, ":1");
+  var windSpeed = GlideParameters(
+      "Wind Speed", Icons.arrow_forward, 0.0, 0.0, 15.0, 15, "m/s");
+  var windDirection = GlideParameters(
+      "Wind Direction", Icons.cloud_queue, 0.0, 0.0, 360.0, 72, "º");
+  var glideSpeed = GlideParameters(
+      "Best Glide", Icons.local_airport, 85.0, 70.0, 100.0, 30, "km/h");
+  var glideRatio = GlideParameters(
+      "Glide Ratio", Icons.flight_land, 27.0, 25.0, 40.0, 15, ":1");
   final lat_lng.Distance distance = lat_lng.Distance();
   final int patternAltitude = 400;
 
@@ -42,104 +45,114 @@ class AltitudeState extends State<Altitude> {
   }
 
   Widget _buildBody(variableToUse) {
-    return Builder(
-        builder: (BuildContext context) {
-          final state = MyInheritedWidget.of(context);
-          final thisFlightStatus = _flightStatus(state);
-          return Container(
-            child: Column(children: <Widget>[
-              Visibility(
-                visible: state.showControls,
-                child: Container(
-                  margin: EdgeInsets.only(left: 7.0),
-                  child: Row(children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Icon(variableToUse.icon),
-                    ),
-                    Text(variableToUse.name),
-                    Expanded(
-                      child: Slider(
-                        activeColor: Colors.indigoAccent,
-                        min: variableToUse.min,
-                        max: variableToUse.max,
-                        divisions: variableToUse.divisions,
-                        value: variableToUse.value,
-                        onChanged: (newValue) => _dataChanged(newValue, variableToUse, state.altitude, state.showAllAltitudes),
-                      ),
-                    ),
-                    Center(
-                        child: Text(
-                            "${variableToUse.value.toStringAsFixed(
-                                0)}${variableToUse.unit}")),
-                    IconButton(
-                      icon: Icon(Icons.swap_horiz),
-                      onPressed: () => _swapVariable(glideParameters, state.altitude, state.showAllAltitudes),
-                    )
-                  ]),
+    return Builder(builder: (BuildContext context) {
+      final state = MyInheritedWidget.of(context);
+      final thisFlightStatus = _flightStatus(state);
+      return Container(
+        child: Column(children: <Widget>[
+          Visibility(
+            visible: state.showControls,
+            child: Container(
+              margin: EdgeInsets.only(left: 7.0),
+              child: Row(children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Icon(variableToUse.icon),
                 ),
-              ),
-              Visibility(
-                visible: state.flightMode,
-                child: Container(
-                  margin: EdgeInsets.only(left: 7.0),
-                  child: Row(children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Icon(thisFlightStatus.icon,
-                          color: thisFlightStatus.color),
-                    ),
-                    Text(
-                        "${thisFlightStatus.status} ${thisFlightStatus.distanceAdvisory}"),
-                  ]),
+                Text(variableToUse.name),
+                Expanded(
+                  child: Slider(
+                    activeColor: Colors.indigoAccent,
+                    min: variableToUse.min,
+                    max: variableToUse.max,
+                    divisions: variableToUse.divisions,
+                    value: variableToUse.value,
+                    onChanged: (newValue) => _dataChanged(newValue,
+                        variableToUse, state.altitude, state.showAllAltitudes),
+                  ),
                 ),
-              ),
-              Flexible(
-                child: GoogleMaps(center: state.airport.coordinates, polylines: _calculatePolylines(state.airport, state.showAllAltitudes, state.altitude), clearAll: true),
-              ),
-            ]),
-          );
-        }
-    );
+                Center(
+                    child: Text(
+                        "${variableToUse.value.toStringAsFixed(0)}${variableToUse.unit}")),
+                IconButton(
+                  icon: Icon(Icons.swap_horiz),
+                  onPressed: () => _swapVariable(
+                      glideParameters, state.altitude, state.showAllAltitudes),
+                )
+              ]),
+            ),
+          ),
+          Visibility(
+            visible: state.flightMode,
+            child: Container(
+              margin: EdgeInsets.only(left: 7.0),
+              child: Row(children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Icon(thisFlightStatus.icon,
+                      color: thisFlightStatus.color),
+                ),
+                Text(
+                    "${thisFlightStatus.status} ${thisFlightStatus.distanceAdvisory}"),
+              ]),
+            ),
+          ),
+          Flexible(
+            child: GoogleMaps(
+                center: state.airport.coordinates,
+                polylines: _calculatePolylines(
+                    state.airport, state.showAllAltitudes, state.altitude),
+                clearAll: true),
+          ),
+        ]),
+      );
+    });
   }
 
   Widget _buildAppBar() {
     return PreferredSize(
       preferredSize: Size.fromHeight(kToolbarHeight),
-      child: Builder(
-        builder: (BuildContext context) {
-          final state = MyInheritedWidget.of(context);
-          return AppBar(
-            title: FittedBox(fit: BoxFit.contain, child: Text('Higher Soaring')),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.arrow_back_ios),
-                tooltip: 'Back',
-                onPressed: state.altitude > 500 && !state.showAllAltitudes ? () => state.decrementAltitude() : null,
-              ),
-              Center(
-                  child: Text(
-                    !state.showAllAltitudes ? "${state.altitude.toString()}m" : "500-1500m",
-                    textAlign: TextAlign.center,
-                  )),
-              IconButton(
-                icon: Icon(Icons.arrow_forward_ios),
-                tooltip: 'Forward',
-                onPressed: !state.showAllAltitudes ? () => state.incrementAltitude() : null,
-              )
-            ],
-          );
-        }
-      ),
+      child: Builder(builder: (BuildContext context) {
+        final state = MyInheritedWidget.of(context);
+        return AppBar(
+          title: FittedBox(fit: BoxFit.contain, child: Text('Higher Soaring')),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              tooltip: 'Back',
+              onPressed: state.altitude > 500 && !state.showAllAltitudes
+                  ? () => state.decrementAltitude()
+                  : null,
+            ),
+            Center(
+                child: Text(
+              !state.showAllAltitudes
+                  ? "${state.altitude.toString()}m"
+                  : "500-1500m",
+              textAlign: TextAlign.center,
+            )),
+            IconButton(
+              icon: Icon(Icons.arrow_forward_ios),
+              tooltip: 'Forward',
+              onPressed: !state.showAllAltitudes
+                  ? () => state.incrementAltitude()
+                  : null,
+            )
+          ],
+        );
+      }),
     );
   }
 
-  List<List<LatLng>> _calculatePolylines(Airport airport, bool showAllAltitudes, int altitude) {
+  List<List<LatLng>> _calculatePolylines(
+      Airport airport, bool showAllAltitudes, int altitude) {
     List<int> altitudes;
     List<LatLng> points = [];
     List<List<LatLng>> polylines = [];
-    LruMap<int, List<LatLng>> _cacheMap = LruMap<int, List<LatLng>>(maximumSize: 1000);
-    final p1 = lat_lng.LatLng(airport.coordinates.latitude, airport.coordinates.longitude);
+    LruMap<int, List<LatLng>> _cacheMap =
+        LruMap<int, List<LatLng>>(maximumSize: 1000);
+    final p1 = lat_lng.LatLng(
+        airport.coordinates.latitude, airport.coordinates.longitude);
     final headings = List<double>.generate(37, (i) => 10.0 * i);
 
     if (showAllAltitudes) {
@@ -149,11 +162,25 @@ class AltitudeState extends State<Altitude> {
     }
 
     altitudes.forEach((alt) {
-      final _hashCode = hashObjects([airport.icao, alt, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value]);
+      final _hashCode = hashObjects([
+        airport.icao,
+        alt,
+        windDirection.value,
+        windSpeed.value,
+        glideSpeed.value,
+        glideRatio.value
+      ]);
       if (!_cacheMap.containsKey(_hashCode)) {
         points = [];
         headings.forEach((hdg) {
-          var distanceToGlide = glideDistance(hdg, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value, alt, patternAltitude);
+          var distanceToGlide = glideDistance(
+              hdg,
+              windDirection.value,
+              windSpeed.value,
+              glideSpeed.value,
+              glideRatio.value,
+              alt,
+              patternAltitude);
           var p2 = distance.offset(p1, distanceToGlide, hdg);
           points.add(LatLng(p2.latitude, p2.longitude));
         });
@@ -169,12 +196,24 @@ class AltitudeState extends State<Altitude> {
     Airport airport = state.airport;
     if (state.position?.altitude == null ||
         (state.position.altitude - airport.altitudeInMeters) < 0) {
-      return FlightStatus("Warning!", Icons.warning, Colors.amber, "Unable to fetch position or altitude");
+      return FlightStatus("Warning!", Icons.warning, Colors.amber,
+          "Unable to fetch position or altitude");
     }
 
     var heading = glideHeading(airport.coordinates, state.myLocation);
-    var maximumGlidingDistance = glideDistance(heading, windDirection.value, windSpeed.value, glideSpeed.value, glideRatio.value, (state.position.altitude - airport.altitudeInMeters).round(), patternAltitude);
-    var distanceToRunway = distance.as(lat_lng.LengthUnit.Meter, lat_lng.LatLng(airport.coordinates.latitude, airport.coordinates.longitude), lat_lng.LatLng(state.position.latitude, state.position.longitude));
+    var maximumGlidingDistance = glideDistance(
+        heading,
+        windDirection.value,
+        windSpeed.value,
+        glideSpeed.value,
+        glideRatio.value,
+        (state.position.altitude - airport.altitudeInMeters).round(),
+        patternAltitude);
+    var distanceToRunway = distance.as(
+        lat_lng.LengthUnit.Meter,
+        lat_lng.LatLng(
+            airport.coordinates.latitude, airport.coordinates.longitude),
+        lat_lng.LatLng(state.position.latitude, state.position.longitude));
 
     if (maximumGlidingDistance > distanceToRunway) {
       return FlightStatus("Good!", Icons.check_circle, Colors.green,

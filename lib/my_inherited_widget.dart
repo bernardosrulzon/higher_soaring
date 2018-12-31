@@ -6,9 +6,7 @@ import 'dart:async';
 import 'airport.dart';
 
 class _MyInherited extends InheritedWidget {
-  _MyInherited({Key key,
-    @required this.data,
-    Widget child})
+  _MyInherited({Key key, @required this.data, Widget child})
       : super(key: key, child: child);
 
   final MyInheritedWidgetState data;
@@ -23,25 +21,28 @@ class MyInheritedWidget extends StatefulWidget {
   MyInheritedWidget({
     Key key,
     this.child,
-  }): super(key: key);
+  }) : super(key: key);
 
   final Widget child;
 
   @override
   MyInheritedWidgetState createState() => new MyInheritedWidgetState();
 
-  static MyInheritedWidgetState of(BuildContext context){
-    return (context.inheritFromWidgetOfExactType(_MyInherited) as _MyInherited).data;
+  static MyInheritedWidgetState of(BuildContext context) {
+    return (context.inheritFromWidgetOfExactType(_MyInherited) as _MyInherited)
+        .data;
   }
 }
 
-class MyInheritedWidgetState extends State<MyInheritedWidget>{
+class MyInheritedWidgetState extends State<MyInheritedWidget> {
   StreamSubscription<Position> _positionStreamSubscription;
-  final locationOptions = LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
+  final locationOptions =
+      LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
   Stream<Position> _positionStream;
   List<Position> positions = [];
 
-  final Airport _airport = Airport("Rio Claro", "SDRK", 619, LatLng(-22.4291879,-47.5618677));
+  final Airport _airport =
+      Airport("Rio Claro", "SDRK", 619, LatLng(-22.4291879, -47.5618677));
   bool _trackMyFlight = false;
   bool _flightMode = false;
   bool _showControls = true;
@@ -94,24 +95,29 @@ class MyInheritedWidgetState extends State<MyInheritedWidget>{
   }
 
   void incrementAltitude() {
-    setState((){
+    setState(() {
       _altitude += 100;
     });
   }
 
   void decrementAltitude() {
-    setState((){
+    setState(() {
       _altitude -= 100;
     });
   }
 
   void setPositionStream() {
-    final Stream<Position> _positionStream = Geolocator().getPositionStream(locationOptions);
-    _positionStreamSubscription = _positionStream.listen((Position position) { setState(() { positions.add(position); }); });
+    final Stream<Position> _positionStream =
+        Geolocator().getPositionStream(locationOptions);
+    _positionStreamSubscription = _positionStream.listen((Position position) {
+      setState(() {
+        positions.add(position);
+      });
+    });
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return _MyInherited(
       data: this,
       child: widget.child,

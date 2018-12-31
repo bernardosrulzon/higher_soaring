@@ -10,16 +10,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MyInheritedWidget(
       child: MaterialApp(
-        title: 'Higher Soaring',
-        theme: ThemeData(
-          primarySwatch: Colors.indigo,
-        ),
-        initialRoute: '/',
-        routes: {
-          '/': (BuildContext context) => Altitude(),
-          '/flight-track': (BuildContext context) => Tracking(),
-        }
-      ),
+          title: 'Higher Soaring',
+          theme: ThemeData(
+            primarySwatch: Colors.indigo,
+          ),
+          initialRoute: '/',
+          routes: {
+            '/': (BuildContext context) => Altitude(),
+            '/flight-track': (BuildContext context) => Tracking(),
+          }),
     );
   }
 }

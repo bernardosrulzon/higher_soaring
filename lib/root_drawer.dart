@@ -17,33 +17,33 @@ class RootDrawerState extends State<RootDrawer> {
     return Drawer(
       child: ListView(children: <Widget>[
         UserAccountsDrawerHeader(
-          accountName: Text(
-            "Bernardo Srulzon",
-            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500),
-          ),
-          accountEmail: Text(
-            "bernardosrulzon@gmail.com",
-            style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300),
-          )
-        ),
+            accountName: Text(
+              "Bernardo Srulzon",
+              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500),
+            ),
+            accountEmail: Text(
+              "bernardosrulzon@gmail.com",
+              style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300),
+            )),
         _buildTrackMyFlight(state),
         Visibility(
-          visible: !state.trackMyFlight,
-          child: SwitchListTile(
-            title: Text("I'm flying!"),
-            value: state.flightMode,
-            onChanged: (bool value) => _flightModeToggle(state, value),
-            secondary: Icon(Icons.flight_takeoff),
-          )
-        ),
+            visible: !state.trackMyFlight,
+            child: SwitchListTile(
+              title: Text("I'm flying!"),
+              value: state.flightMode,
+              onChanged: (bool value) => _flightModeToggle(state, value),
+              secondary: Icon(Icons.flight_takeoff),
+            )),
         Visibility(
           visible: !state.trackMyFlight,
           child: SwitchListTile(
             title: Text('Show controls'),
             value: state.showControls,
-            onChanged: (bool value) { setState(() {
-              state.showControls = value;
-            }); },
+            onChanged: (bool value) {
+              setState(() {
+                state.showControls = value;
+              });
+            },
             secondary: Icon(Icons.settings),
           ),
         ),
@@ -72,9 +72,15 @@ class RootDrawerState extends State<RootDrawer> {
               "MSL: ${_locationData('altitude', state)}\nAGL: ${_locationData('height', state)}"),
         ),
         ListTile(
-          leading: Icon(state.positionStreamSubscription == null || state.positionStreamSubscription.isPaused ? Icons.gps_off : Icons.gps_fixed),
+          leading: Icon(state.positionStreamSubscription == null ||
+                  state.positionStreamSubscription.isPaused
+              ? Icons.gps_off
+              : Icons.gps_fixed),
           title: Text('Location updates'),
-          subtitle: Text(state.positionStreamSubscription == null || state.positionStreamSubscription.isPaused ? 'Disabled' : 'Enabled'),
+          subtitle: Text(state.positionStreamSubscription == null ||
+                  state.positionStreamSubscription.isPaused
+              ? 'Disabled'
+              : 'Enabled'),
         ),
       ]),
     );
@@ -122,7 +128,9 @@ class RootDrawerState extends State<RootDrawer> {
   _buildTrackMyFlight(state) {
     return ListTile(
       leading: Icon(Icons.navigation),
-      title: state.trackMyFlight ? Text("Return to altitude") : Text("Track my flight"),
+      title: state.trackMyFlight
+          ? Text("Return to altitude")
+          : Text("Track my flight"),
       onTap: () {
         state.trackMyFlight = !state.trackMyFlight;
         if (state.trackMyFlight) {
