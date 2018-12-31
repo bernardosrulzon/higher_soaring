@@ -42,11 +42,13 @@ class MyInheritedWidgetState extends State<MyInheritedWidget>{
   List<Position> positions = [];
 
   final Airport _airport = Airport("Rio Claro", "SDRK", 619, LatLng(-22.4291879,-47.5618677));
+  bool _trackMyFlight = false;
   bool _flightMode = false;
   bool _showControls = true;
   bool _showAllAltitudes = false;
   int _altitude = 500;
 
+  bool get trackMyFlight => _trackMyFlight;
   Airport get airport => _airport;
   bool get flightMode => _flightMode;
   bool get showControls => _showControls;
@@ -65,6 +67,12 @@ class MyInheritedWidgetState extends State<MyInheritedWidget>{
       return LatLng(position.latitude, position.longitude);
     }
     return null;
+  }
+
+  set trackMyFlight(bool value) {
+    setState(() {
+      _trackMyFlight = value;
+    });
   }
 
   set flightMode(bool value) {

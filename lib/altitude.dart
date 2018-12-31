@@ -8,8 +8,8 @@ import 'airport.dart';
 import 'google_maps.dart';
 import 'glide_parameters.dart';
 import 'flight_status.dart';
+import 'my_home.dart';
 import 'my_inherited_widget.dart';
-import 'root_drawer.dart';
 import 'utils.dart';
 
 class Altitude extends StatefulWidget {
@@ -35,12 +35,9 @@ class AltitudeState extends State<Altitude> {
     glideParameters ??= [windSpeed, windDirection, glideSpeed, glideRatio];
     var variableToUse = glideParameters[0];
 
-    return MyInheritedWidget(
-      child: Scaffold(
-        appBar: _buildAppBar(),
-        body: _buildBody(variableToUse),
-        drawer: RootDrawer(),
-      ),
+    return MyHome(
+      appBar: _buildAppBar(),
+      body: _buildBody(variableToUse),
     );
   }
 

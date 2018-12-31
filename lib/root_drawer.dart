@@ -10,8 +10,6 @@ class RootDrawer extends StatefulWidget {
 }
 
 class RootDrawerState extends State<RootDrawer> {
-  bool _trackMyFlight = false;
-
   @override
   Widget build(BuildContext context) {
     final MyInheritedWidgetState state = MyInheritedWidget.of(context);
@@ -19,34 +17,44 @@ class RootDrawerState extends State<RootDrawer> {
     return Drawer(
       child: ListView(children: <Widget>[
         UserAccountsDrawerHeader(
-            accountName: Text(
-              "Bernardo Srulzon",
-              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500),
-            ),
-            accountEmail: Text(
-              "bernardosrulzon@gmail.com",
-              style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300),
-            )),
-        _buildTrackMyFlight(),
-        SwitchListTile(
-          title: Text("I'm flying!"),
-          value: state.flightMode,
-          onChanged: (bool value) => _flightModeToggle(state, value),
-          secondary: Icon(Icons.flight_takeoff),
+          accountName: Text(
+            "Bernardo Srulzon",
+            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500),
+          ),
+          accountEmail: Text(
+            "bernardosrulzon@gmail.com",
+            style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300),
+          )
         ),
-        SwitchListTile(
-          title: Text('Show controls'),
-          value: state.showControls,
-          onChanged: (bool value) { setState(() {
-            state.showControls = value;
-          }); },
-          secondary: Icon(Icons.settings),
+        _buildTrackMyFlight(state),
+        Visibility(
+          visible: !state.trackMyFlight,
+          child: SwitchListTile(
+            title: Text("I'm flying!"),
+            value: state.flightMode,
+            onChanged: (bool value) => _flightModeToggle(state, value),
+            secondary: Icon(Icons.flight_takeoff),
+          )
         ),
-        SwitchListTile(
-          title: Text('Plot all altitudes'),
-          value: state.showAllAltitudes,
-          onChanged: (bool value) => _allAltitudesToggle(state, value),
-          secondary: Icon(Icons.all_inclusive),
+        Visibility(
+          visible: !state.trackMyFlight,
+          child: SwitchListTile(
+            title: Text('Show controls'),
+            value: state.showControls,
+            onChanged: (bool value) { setState(() {
+              state.showControls = value;
+            }); },
+            secondary: Icon(Icons.settings),
+          ),
+        ),
+        Visibility(
+          visible: !state.trackMyFlight,
+          child: SwitchListTile(
+            title: Text('Plot all altitudes'),
+            value: state.showAllAltitudes,
+            onChanged: (bool value) => _allAltitudesToggle(state, value),
+            secondary: Icon(Icons.all_inclusive),
+          ),
         ),
         ListTile(
           leading: Icon(Icons.local_airport),
@@ -111,12 +119,17 @@ class RootDrawerState extends State<RootDrawer> {
     return "Unknown!";
   }
 
-  _buildTrackMyFlight() {
+  _buildTrackMyFlight(state) {
     return ListTile(
       leading: Icon(Icons.navigation),
-      title: _trackMyFlight ? Text("Track my flight"),
+      title: state.trackMyFlight ? Text("Return to altitude") : Text("Track my flight"),
       onTap: () {
-        Navigator.pushNamed(context, '/flight-track');
+        state.trackMyFlight = !state.trackMyFlight;
+        if (state.trackMyFlight) {
+          Navigator.pushNamed(context, '/flight-track');
+        } else {
+          Navigator.popUntil(context, ModalRoute.withName('/'));
+        }
       },
     );
   }
