@@ -97,7 +97,7 @@ class AltitudeState extends State<Altitude> {
               ]),
             ),
           ),
-          Flexible(
+          Expanded(
             child: GoogleMaps(
                 center: state.airport.coordinates,
                 polylines: _calculatePolylines(
@@ -128,7 +128,7 @@ class AltitudeState extends State<Altitude> {
                 child: Text(
               !state.showAllAltitudes
                   ? "${state.altitude.toString()}m"
-                  : "500-1500m",
+                  : "500-1000m",
               textAlign: TextAlign.center,
             )),
             IconButton(

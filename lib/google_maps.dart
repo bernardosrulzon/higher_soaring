@@ -29,11 +29,7 @@ class GoogleMapsState extends State<GoogleMaps> {
       if (widget.center != oldWidget.center) {
         _moveCamera(widget.center);
       }
-      List<LatLng> flat_polylines = widget.polylines.expand((i) => i).toList();
-      if (flat_polylines.length > 5) {
-        print('<><><><> UPDATING');
-        _automaticZoom(flat_polylines);
-      }
+      _automaticZoom(widget.polylines);
     }
   }
 
@@ -61,6 +57,7 @@ class GoogleMapsState extends State<GoogleMaps> {
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
     addPolylines(widget.polylines, widget.clearAll);
+    _automaticZoom(widget.polylines);
   }
 
   void addPolylines(List<List<LatLng>> polylines, bool clearAll) async {
@@ -80,19 +77,22 @@ class GoogleMapsState extends State<GoogleMaps> {
     setState(() {});
   }
 
-  _automaticZoom(List<LatLng> flat_polylines) {
-    mapController.animateCamera(
-      CameraUpdate.newLatLngBounds(
-        LatLngBounds(
-          southwest: LatLng(
-              flat_polylines.map((i) => i.latitude).toList().reduce(min),
-              flat_polylines.map((i) => i.longitude).toList().reduce(min)),
-          northeast: LatLng(
-              flat_polylines.map((i) => i.latitude).toList().reduce(max),
-              flat_polylines.map((i) => i.longitude).toList().reduce(max)),
+  _automaticZoom(List<List<LatLng>> polylines) {
+    List<LatLng> flat_polylines = polylines.expand((i) => i).toList();
+    if (flat_polylines.length > 5) {
+      mapController.animateCamera(
+        CameraUpdate.newLatLngBounds(
+          LatLngBounds(
+            southwest: LatLng(
+                flat_polylines.map((i) => i.latitude).toList().reduce(min),
+                flat_polylines.map((i) => i.longitude).toList().reduce(min)),
+            northeast: LatLng(
+                flat_polylines.map((i) => i.latitude).toList().reduce(max),
+                flat_polylines.map((i) => i.longitude).toList().reduce(max)),
+          ),
+          32.0,
         ),
-        32.0,
-      ),
-    );
+      );
+    }
   }
 }

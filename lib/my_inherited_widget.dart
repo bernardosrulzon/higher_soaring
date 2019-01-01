@@ -39,7 +39,7 @@ class MyInheritedWidgetState extends State<MyInheritedWidget> {
   final locationOptions =
       LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
   Stream<Position> _positionStream;
-  List<Position> positions = [];
+  List<List> _positions = [];
 
   final Airport _airport =
       Airport("Rio Claro", "SDRK", 619, LatLng(-22.4291879, -47.5618677));
@@ -57,14 +57,15 @@ class MyInheritedWidgetState extends State<MyInheritedWidget> {
   get positionStream => _positionStream;
   get positionStreamSubscription => _positionStreamSubscription;
   int get altitude => _altitude;
+  List get positions => _positions;
 
   Position get position {
-    return positions.isNotEmpty ? positions.last : null;
+    return _positions.isNotEmpty ? _positions.last[1] : null;
   }
 
   LatLng get myLocation {
-    if (positions.isNotEmpty) {
-      var position = positions.last;
+    if (_positions.isNotEmpty) {
+      var position = _positions.last[1];
       return LatLng(position.latitude, position.longitude);
     }
     return null;
@@ -111,7 +112,7 @@ class MyInheritedWidgetState extends State<MyInheritedWidget> {
         Geolocator().getPositionStream(locationOptions);
     _positionStreamSubscription = _positionStream.listen((Position position) {
       setState(() {
-        positions.add(position);
+        _positions.add([DateTime.now(), position]);
       });
     });
   }
