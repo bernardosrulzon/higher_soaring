@@ -1,23 +1,24 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
-import 'my_inherited_widget.dart';
 
 class AltitudeChart extends StatelessWidget {
   final bool animate;
+  final data;
+  final String title;
+  final String unit;
 
-  AltitudeChart({this.animate});
+  AltitudeChart({this.data, this.animate, this.title, this.unit});
 
   @override
   Widget build(BuildContext context) {
-    final state = MyInheritedWidget.of(context);
-    return charts.TimeSeriesChart(_calculateAltitudes(state.positions),
+    return charts.TimeSeriesChart(data,
         animate: animate,
         primaryMeasureAxis: charts.NumericAxisSpec(
             tickProviderSpec:
                 charts.BasicNumericTickProviderSpec(zeroBound: false),
             tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
-                (num value) => '${value.toStringAsFixed(0)}m'),
+                (num value) => '${value.toStringAsFixed(0)}${unit}'),
             renderSpec: charts.GridlineRendererSpec(
               lineStyle: charts.LineStyleSpec(
                   thickness: 0, color: charts.MaterialPalette.transparent),
@@ -27,38 +28,12 @@ class AltitudeChart extends StatelessWidget {
         domainAxis: charts.DateTimeAxisSpec(
             showAxisLine: true, renderSpec: charts.NoneRenderSpec()),
         behaviors: [
-          charts.ChartTitle('Altitude',
+          charts.ChartTitle(title,
               behaviorPosition: charts.BehaviorPosition.start,
-              titleOutsideJustification: charts.OutsideJustification.middleDrawArea,
+              titleOutsideJustification:
+                  charts.OutsideJustification.middleDrawArea,
               titleStyleSpec: charts.TextStyleSpec(
                   fontSize: 13, color: charts.MaterialPalette.black)),
         ]);
   }
-
-  _calculateAltitudes(List positions) {
-    var altitudes = positions
-        .map((position) => AltitudeTimeSeries(
-            position[0], position[1].altitude, Colors.indigo))
-        .toList();
-
-    return [
-      new charts.Series<AltitudeTimeSeries, DateTime>(
-        id: 'Altitude Time Series',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (AltitudeTimeSeries altitude, _) => altitude.timestamp,
-        measureFn: (AltitudeTimeSeries altitude, _) => altitude.altitude,
-        data: altitudes,
-      )
-    ];
-  }
-}
-
-class AltitudeTimeSeries {
-  AltitudeTimeSeries(this.timestamp, this.altitude, Color color)
-      : this.color = new charts.Color(
-            r: color.red, g: color.green, b: color.blue, a: color.alpha);
-
-  final DateTime timestamp;
-  final double altitude;
-  final charts.Color color;
 }

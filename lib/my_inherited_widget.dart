@@ -112,7 +112,9 @@ class MyInheritedWidgetState extends State<MyInheritedWidget> {
         Geolocator().getPositionStream(locationOptions);
     _positionStreamSubscription = _positionStream.listen((Position position) {
       setState(() {
-        _positions.add([DateTime.now(), position]);
+        if(position.altitude == null || position.altitude > 0.0) {
+          _positions.add([DateTime.now(), position]);
+        }
       });
     });
   }
