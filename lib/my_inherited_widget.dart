@@ -37,7 +37,7 @@ class MyInheritedWidget extends StatefulWidget {
 class MyInheritedWidgetState extends State<MyInheritedWidget> {
   StreamSubscription<Position> _positionStreamSubscription;
   final locationOptions =
-      LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
+      LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 5);
   Stream<Position> _positionStream;
   List<List> _positions = [];
 
