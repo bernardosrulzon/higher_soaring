@@ -55,13 +55,14 @@ class GoogleMapsState extends State<GoogleMaps> {
     setState(() {});
   }
 
-  void _onMapCreated(GoogleMapController controller) {
+  _onMapCreated(GoogleMapController controller) {
     mapController = controller;
     addPolylines(widget.polylines, widget.clearAll);
     _automaticZoom(widget.polylines);
+    setState(() {});
   }
 
-  void addPolylines(List<List<LatLng>> polylines, bool clearAll) async {
+  addPolylines(List<List<LatLng>> polylines, bool clearAll) async {
     if (clearAll) {
       await mapController.clearPolylines();
     }
@@ -75,7 +76,6 @@ class GoogleMapsState extends State<GoogleMaps> {
           jointType: 2,
           color: Colors.indigoAccent.value));
     });
-    setState(() {});
   }
 
   _automaticZoom(List<List<LatLng>> polylines) {
