@@ -18,7 +18,7 @@ class AltitudeChart extends StatelessWidget {
             tickProviderSpec:
                 charts.BasicNumericTickProviderSpec(zeroBound: false),
             tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
-                (num value) => '${value.toStringAsFixed(0)}${unit}'),
+                (num value) => '${value.toStringAsFixed(0)}$unit'),
             renderSpec: charts.GridlineRendererSpec(
               lineStyle: charts.LineStyleSpec(
                   thickness: 0, color: charts.MaterialPalette.transparent),

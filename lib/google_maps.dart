@@ -79,17 +79,17 @@ class GoogleMapsState extends State<GoogleMaps> {
   }
 
   _automaticZoom(List<List<LatLng>> polylines) {
-    List<LatLng> flat_polylines = polylines.expand((i) => i).toList();
-    if (flat_polylines.length > 5) {
+    List<LatLng> flatPolylines = polylines.expand((i) => i).toList();
+    if (flatPolylines.length > 5) {
       mapController.animateCamera(
         CameraUpdate.newLatLngBounds(
           LatLngBounds(
             southwest: LatLng(
-                flat_polylines.map((i) => i.latitude).toList().reduce(min),
-                flat_polylines.map((i) => i.longitude).toList().reduce(min)),
+                flatPolylines.map((i) => i.latitude).toList().reduce(min),
+                flatPolylines.map((i) => i.longitude).toList().reduce(min)),
             northeast: LatLng(
-                flat_polylines.map((i) => i.latitude).toList().reduce(max),
-                flat_polylines.map((i) => i.longitude).toList().reduce(max)),
+                flatPolylines.map((i) => i.latitude).toList().reduce(max),
+                flatPolylines.map((i) => i.longitude).toList().reduce(max)),
           ),
           32.0,
         ),
