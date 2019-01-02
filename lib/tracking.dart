@@ -99,9 +99,11 @@ class TrackingMap extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = MyInheritedWidget.of(context);
     return GoogleMaps(
-        center: state.myLocation ?? LatLng(-23.5614909, -46.6560097),
-        polylines: _calculatePolylines(),
-        clearAll: true);
+      center: state.myLocation ?? LatLng(-23.5614909, -46.6560097),
+      polylines: _calculatePolylines(),
+      clearAll: true,
+      zoom: 16.0,
+    );
   }
 
   List<List<LatLng>> _calculatePolylines() {

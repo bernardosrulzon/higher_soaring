@@ -4,12 +4,13 @@ import 'package:collection/collection.dart';
 import 'dart:math';
 
 class GoogleMaps extends StatefulWidget {
-  GoogleMaps({Key key, this.center, this.polylines, this.clearAll})
+  GoogleMaps({Key key, this.center, this.polylines, this.clearAll, this.zoom})
       : super(key: key);
 
   final LatLng center;
   final bool clearAll;
   final List<List<LatLng>> polylines;
+  final double zoom;
 
   @override
   State createState() => GoogleMapsState();
@@ -43,7 +44,7 @@ class GoogleMapsState extends State<GoogleMaps> {
         mapType: MapType.hybrid,
         cameraPosition: CameraPosition(
           target: widget.center,
-          zoom: 12.0,
+          zoom: widget.zoom,
         ),
       ),
     );
