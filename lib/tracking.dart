@@ -77,7 +77,6 @@ class TrackingState extends State<Tracking> {
   }
 
   _getSpeedTimeSeries(List<PositionTimeSeries> chartData) {
-    print(chartData);
     return [
       charts.Series<PositionTimeSeries, DateTime>(
         id: 'Speed Time Series',

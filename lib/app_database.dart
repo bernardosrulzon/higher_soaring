@@ -24,7 +24,6 @@ class AppDatabase {
               'speed REAL'
               ')');
         });
-    print('Finished setup');
   }
 
   insertPositionData(String createdAt, double latitude, double longitude, double altitude, double speed) async {
