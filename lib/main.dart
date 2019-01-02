@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'altitude.dart';
+import 'app_database.dart';
 import 'my_inherited_widget.dart';
 import 'tracking.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  await AppDatabase().setupDatabase();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override

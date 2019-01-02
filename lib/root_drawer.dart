@@ -112,14 +112,14 @@ class RootDrawerState extends State<RootDrawer> {
       return "Unknown!";
     }
     if (type == 'latlon') {
-      return "Latitude: ${state.position.latitude.toStringAsFixed(4)}\nLongitude: ${state.position.longitude.toStringAsFixed(4)}";
+      return "Latitude: ${state.position['latitude'].toStringAsFixed(4)}\nLongitude: ${state.position['longitude'].toStringAsFixed(4)}";
     } else {
-      if (state.position.altitude == null) {
+      if (state.position['altitude'] == null) {
         return "Unknown!";
       } else if (type == 'altitude') {
-        return "${state.position?.altitude?.toStringAsFixed(0)}m";
+        return "${state.position['altitude'].toStringAsFixed(0)}m";
       } else if (type == 'height') {
-        return "${(state.position.altitude - state.airport.altitudeInMeters).toStringAsFixed(0)}m";
+        return "${(state.position['altitude'] - state.airport.altitudeInMeters).toStringAsFixed(0)}m";
       }
     }
     return "Unknown!";

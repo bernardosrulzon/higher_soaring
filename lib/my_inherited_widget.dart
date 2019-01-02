@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'dart:async';
 import 'airport.dart';
+import 'app_database.dart';
 
 class _MyInherited extends InheritedWidget {
   _MyInherited({Key key, @required this.data, Widget child})
@@ -36,10 +37,9 @@ class MyInheritedWidget extends StatefulWidget {
 
 class MyInheritedWidgetState extends State<MyInheritedWidget> {
   StreamSubscription<Position> _positionStreamSubscription;
-  final locationOptions =
-      LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 5);
-  Stream<Position> _positionStream;
-  List<List> _positions = [];
+  final Stream<Position> _positionStream = Geolocator().getPositionStream(
+      LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 5));
+  List _positions = [];
 
   final Airport _airport =
       Airport("Rio Claro", "SDRK", 619, LatLng(-22.4291879, -47.5618677));
@@ -57,16 +57,17 @@ class MyInheritedWidgetState extends State<MyInheritedWidget> {
   get positionStream => _positionStream;
   get positionStreamSubscription => _positionStreamSubscription;
   int get altitude => _altitude;
-  List get positions => _positions;
 
-  Position get position {
-    return _positions.isNotEmpty ? _positions.last[1] : null;
+  get positions => _positions;
+
+  get position {
+    return _positions.isNotEmpty ? _positions.last : null;
   }
 
   LatLng get myLocation {
     if (_positions.isNotEmpty) {
-      var position = _positions.last[1];
-      return LatLng(position.latitude, position.longitude);
+      var position = _positions.last;
+      return LatLng(position['latitude'], position['longitude']);
     }
     return null;
   }
@@ -107,16 +108,25 @@ class MyInheritedWidgetState extends State<MyInheritedWidget> {
     });
   }
 
+  _updatePositions() async {
+    _positions = await AppDatabase().queryData("SELECT * FROM positions;");
+    setState(() {});
+  }
+
   void setPositionStream() {
-    final Stream<Position> _positionStream =
-        Geolocator().getPositionStream(locationOptions);
-    _positionStreamSubscription = _positionStream.listen((Position position) {
-      setState(() {
-        if(position.altitude == null || position.altitude > 0.0) {
-          _positions.add([DateTime.now(), position]);
+    if (_positionStreamSubscription == null) {
+      _positionStreamSubscription = _positionStream.listen((Position position) {
+        if (position.altitude == null || position.altitude > 0.0) {
+          AppDatabase().insertPositionData(
+              DateTime.now().toString(),
+              position.latitude,
+              position.longitude,
+              position.altitude,
+              position.speed);
+          _updatePositions();
         }
       });
-    });
+    }
   }
 
   @override

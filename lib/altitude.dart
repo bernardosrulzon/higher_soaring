@@ -194,8 +194,8 @@ class AltitudeState extends State<Altitude> {
 
   _flightStatus(state) {
     Airport airport = state.airport;
-    if (state.position?.altitude == null ||
-        (state.position.altitude - airport.altitudeInMeters) < 0) {
+    if (state.position == null || state.position['altitude'] == null ||
+        (state.position['altitude'] - airport.altitudeInMeters) < 0) {
       return FlightStatus("Warning!", Icons.warning, Colors.amber,
           "Unable to fetch position or altitude");
     }
@@ -207,13 +207,13 @@ class AltitudeState extends State<Altitude> {
         windSpeed.value,
         glideSpeed.value,
         glideRatio.value,
-        (state.position.altitude - airport.altitudeInMeters).round(),
+        (state.position['altitude'] - airport.altitudeInMeters).round(),
         patternAltitude);
     var distanceToRunway = distance.as(
         lat_lng.LengthUnit.Meter,
         lat_lng.LatLng(
             airport.coordinates.latitude, airport.coordinates.longitude),
-        lat_lng.LatLng(state.position.latitude, state.position.longitude));
+        lat_lng.LatLng(state.position['latitude'], state.position['longitude']));
 
     if (maximumGlidingDistance > distanceToRunway) {
       return FlightStatus("Good!", Icons.check_circle, Colors.green,
