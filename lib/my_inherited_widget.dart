@@ -96,6 +96,12 @@ class MyInheritedWidgetState extends State<MyInheritedWidget> {
     });
   }
 
+  @override
+  void dispose() {
+    _positionStreamSubscription.cancel();
+    super.dispose();
+  }
+
   void incrementAltitude() {
     setState(() {
       _altitude += 100;
