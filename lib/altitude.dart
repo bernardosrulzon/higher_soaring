@@ -6,7 +6,6 @@ import 'package:quiver/collection.dart';
 
 import 'airport.dart';
 import 'google_maps.dart';
-import 'glide_parameters.dart';
 import 'my_inherited_widget.dart';
 import 'utils.dart';
 
@@ -316,4 +315,17 @@ class FlightStatus {
   String distanceAdvisory;
 
   FlightStatus(this.status, this.icon, this.color, this.distanceAdvisory);
+}
+
+class GlideParameters {
+  String name;
+  IconData icon;
+  double value;
+  double min;
+  double max;
+  int divisions;
+  String unit;
+
+  GlideParameters(this.name, this.icon, this.value, this.min, this.max,
+      this.divisions, this.unit);
 }
