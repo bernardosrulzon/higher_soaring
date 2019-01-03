@@ -48,3 +48,9 @@ double glideHeading(LatLng p1, LatLng p2) {
       math.sin(lat1) * math.cos(lat2) * math.cos(lon2 - lon1);
   return toDegrees(math.atan2(y, x));
 }
+
+String altitudeInfo(altitude, height) {
+  var msl = altitude != null ? "${altitude.round()}m" : 'Unknown';
+  var agl = height != null ? "${height.round()}m" : 'Unknown';
+  return "MSL: $msl\nAGL: $agl";
+}

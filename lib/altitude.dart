@@ -288,8 +288,7 @@ class AltitudeState extends State<Altitude> {
           ListTile(
             leading: Icon(Icons.navigation),
             title: Text('Altitude'),
-            subtitle: Text(
-                "MSL: ${state.myAltitude != null ? state.myAltitude.round() : '?'}m\nAGL: ${state.myHeight != null ? state.myHeight.round() : '?'}m"),
+            subtitle: Text(altitudeInfo(state.myAltitude, state.myHeight)),
           ),
           ListTile(
             leading: Icon(state.positionStreamSubscription == null ||

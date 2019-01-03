@@ -4,6 +4,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'my_inherited_widget.dart';
 import 'google_maps.dart';
 import 'altitude_chart.dart';
+import 'utils.dart';
 
 class Tracking extends StatefulWidget {
   Tracking({Key key}) : super(key: key);
@@ -80,8 +81,7 @@ class TrackingState extends State<Tracking> {
           ListTile(
             leading: Icon(Icons.navigation),
             title: Text('Altitude'),
-            subtitle: Text(
-                "MSL: ${state.myAltitude.round()}m\nAGL: ${state.myHeight.round()}m"),
+            subtitle: Text(altitudeInfo(state.myAltitude, state.myHeight)),
           ),
           ListTile(
             leading: Icon(state.positionStreamSubscription == null ||
