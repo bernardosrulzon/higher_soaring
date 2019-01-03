@@ -33,7 +33,14 @@ class AltitudeChart extends StatelessWidget {
               titleOutsideJustification:
                   charts.OutsideJustification.middleDrawArea,
               titleStyleSpec: charts.TextStyleSpec(
-                  fontSize: 13, color: charts.MaterialPalette.black)),
+                  fontSize: 13, color: charts.MaterialPalette.black)
+          ),
+          charts.LinePointHighlighter(
+              showHorizontalFollowLine:
+              charts.LinePointHighlighterFollowLineType.none,
+              showVerticalFollowLine:
+              charts.LinePointHighlighterFollowLineType.none),
+          charts.SelectNearest(eventTrigger: charts.SelectionTrigger.tapAndDrag)
         ]);
   }
 }

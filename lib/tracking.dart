@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'my_inherited_widget.dart';
-import 'my_home.dart';
 import 'google_maps.dart';
 import 'altitude_chart.dart';
 
@@ -26,8 +25,9 @@ class TrackingState extends State<Tracking> {
           position['speed'] * 3.6,
           Colors.indigo));
     });
-    return MyHome(
+    return Scaffold(
       appBar: _buildAppBar(),
+      drawer: _buildDrawer(),
       body: Column(
         children: <Widget>[
           Expanded(child: TrackingMap(positions: state.positions)),
@@ -55,6 +55,48 @@ class TrackingState extends State<Tracking> {
         ],
       ),
     );
+  }
+
+  Widget _buildDrawer() {
+    return Builder(builder: (BuildContext context) {
+      final state = MyInheritedWidget.of(context);
+      return Drawer(
+        child: ListView(padding: const EdgeInsets.all(0.0), children: <Widget>[
+          UserAccountsDrawerHeader(
+              accountName: Text(
+                "Bernardo Srulzon",
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500),
+              ),
+              accountEmail: Text(
+                "bernardosrulzon@gmail.com",
+                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300),
+              )),
+          ListTile(
+            leading: Icon(Icons.arrow_back),
+            title: Text('Take me back'),
+            onTap: () => Navigator.popUntil(context, ModalRoute.withName('/')),
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.navigation),
+            title: Text('Altitude'),
+            subtitle: Text(
+                "MSL: ${state.myAltitude.round()}m\nAGL: ${state.myHeight.round()}m"),
+          ),
+          ListTile(
+            leading: Icon(state.positionStreamSubscription == null ||
+                    state.positionStreamSubscription.isPaused
+                ? Icons.gps_off
+                : Icons.gps_fixed),
+            title: Text('Location updates'),
+            subtitle: Text(state.positionStreamSubscription == null ||
+                    state.positionStreamSubscription.isPaused
+                ? 'Disabled'
+                : 'Enabled'),
+          ),
+        ]),
+      );
+    });
   }
 
   _buildAppBar() {

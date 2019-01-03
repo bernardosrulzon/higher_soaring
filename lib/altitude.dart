@@ -7,8 +7,6 @@ import 'package:quiver/collection.dart';
 import 'airport.dart';
 import 'google_maps.dart';
 import 'glide_parameters.dart';
-import 'flight_status.dart';
-import 'my_home.dart';
 import 'my_inherited_widget.dart';
 import 'utils.dart';
 
@@ -38,9 +36,10 @@ class AltitudeState extends State<Altitude> {
     glideParameters ??= [windSpeed, windDirection, glideSpeed, glideRatio];
     var variableToUse = glideParameters[0];
 
-    return MyHome(
+    return Scaffold(
       appBar: _buildAppBar(),
       body: _buildBody(variableToUse),
+      drawer: _buildDrawer(),
     );
   }
 
@@ -238,4 +237,83 @@ class AltitudeState extends State<Altitude> {
       glideParameters.add(glideParameters.removeAt(0));
     });
   }
+
+  Widget _buildDrawer() {
+    return Builder(builder: (BuildContext context) {
+      final state = MyInheritedWidget.of(context);
+      return Drawer(
+        child: ListView(padding: const EdgeInsets.all(0.0), children: <Widget>[
+          UserAccountsDrawerHeader(
+              accountName: Text(
+                "Bernardo Srulzon",
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500),
+              ),
+              accountEmail: Text(
+                "bernardosrulzon@gmail.com",
+                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300),
+              )),
+          ListTile(
+            leading: Icon(Icons.arrow_back),
+            title: Text('Take me back'),
+            onTap: () => Navigator.popUntil(context, ModalRoute.withName('/')),
+          ),
+          Divider(),
+          SwitchListTile(
+            title: Text("I'm flying!"),
+            value: state.flightMode,
+            onChanged: (bool value) => setState(() {
+                  state.setPositionStream();
+                  state.flightMode = value;
+                }),
+            secondary: Icon(Icons.flight_takeoff),
+          ),
+          SwitchListTile(
+            title: Text('Show controls'),
+            value: state.showControls,
+            onChanged: (bool value) {
+              setState(() {
+                state.showControls = value;
+              });
+            },
+            secondary: Icon(Icons.settings),
+          ),
+          SwitchListTile(
+            title: Text('Plot all altitudes'),
+            value: state.showAllAltitudes,
+            onChanged: (bool value) => setState(() {
+                  state.showAllAltitudes = value;
+                }),
+            secondary: Icon(Icons.all_inclusive),
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.navigation),
+            title: Text('Altitude'),
+            subtitle: Text(
+                "MSL: ${state.myAltitude != null ? state.myAltitude.round() : '?'}m\nAGL: ${state.myHeight != null ? state.myHeight.round() : '?'}m"),
+          ),
+          ListTile(
+            leading: Icon(state.positionStreamSubscription == null ||
+                    state.positionStreamSubscription.isPaused
+                ? Icons.gps_off
+                : Icons.gps_fixed),
+            title: Text('Location updates'),
+            subtitle: Text(state.positionStreamSubscription == null ||
+                    state.positionStreamSubscription.isPaused
+                ? 'Disabled'
+                : 'Enabled'),
+          ),
+        ]),
+      );
+    });
+  }
+}
+
+class FlightStatus {
+  String status;
+  IconData icon;
+  MaterialColor color;
+  String distanceAdvisory;
+
+  FlightStatus(this.status, this.icon, this.color, this.distanceAdvisory);
 }

@@ -72,6 +72,14 @@ class MyInheritedWidgetState extends State<MyInheritedWidget> {
     return null;
   }
 
+  double get myAltitude {
+    return _positions.isNotEmpty ? _positions.last['altitude'] : null;
+  }
+
+  double get myHeight {
+    return _positions.isNotEmpty ? _positions.last['altitude'] - _airport.altitudeInMeters : null;
+  }
+
   set trackMyFlight(bool value) {
     setState(() {
       _trackMyFlight = value;
@@ -98,8 +106,12 @@ class MyInheritedWidgetState extends State<MyInheritedWidget> {
 
   @override
   void dispose() {
-    _positionStreamSubscription.cancel();
+    cancelPositionStream();
     super.dispose();
+  }
+
+  void cancelPositionStream() {
+    _positionStreamSubscription.cancel();
   }
 
   void incrementAltitude() {
