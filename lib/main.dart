@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'altitude.dart';
 import 'app_database.dart';
+import 'index.dart';
 import 'my_inherited_widget.dart';
 import 'tracking.dart';
 
@@ -18,10 +19,10 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.indigo,
           ),
-          initialRoute: '/',
           routes: {
-            '/': (BuildContext context) => Altitude(),
+            '/altitude': (BuildContext context) => Altitude(),
             '/flight-track': (BuildContext context) => Tracking(),
+            '/': (BuildContext context)=> Index(),
           }),
     );
   }
