@@ -19,23 +19,28 @@ class GoogleMaps extends StatefulWidget {
 class GoogleMapsState extends State<GoogleMaps> {
   GoogleMapController mapController;
   Function eq = const DeepCollectionEquality().equals;
+  List<LatLng> flatPolylines;
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
+    flatPolylines = widget.polylines.expand((i) => i).toList();
     if (mapController != null) {
       if (!eq(oldWidget.polylines, widget.polylines)) {
-        addPolylines(widget.polylines, widget.clearAll);
+        addPolylines();
+        if (flatPolylines.length >= 5) {
+          _automaticZoom(flatPolylines);
+        }
       }
-      if (widget.center != oldWidget.center) {
-        _moveCamera(widget.center);
+      if (widget.center != oldWidget.center && eq(oldWidget.polylines, [[]])) {
+        _moveCamera();
       }
-      _automaticZoom(widget.polylines);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    flatPolylines = widget.polylines.expand((i) => i).toList();
     return GoogleMap(
       onMapCreated: (controller) => _onMapCreated(controller),
       options: GoogleMapOptions(
@@ -50,23 +55,21 @@ class GoogleMapsState extends State<GoogleMaps> {
     );
   }
 
-  void _moveCamera(LatLng target) async {
-    await mapController.animateCamera(CameraUpdate.newLatLng(target));
-    setState(() {});
+  void _moveCamera() async {
+    await mapController.animateCamera(CameraUpdate.newLatLng(widget.center));
   }
 
   _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    addPolylines(widget.polylines, widget.clearAll);
-    _automaticZoom(widget.polylines);
-    setState(() {});
+    addPolylines();
+    _automaticZoom(flatPolylines);
   }
 
-  addPolylines(List<List<LatLng>> polylines, bool clearAll) async {
-    if (clearAll) {
+  addPolylines() async {
+    if (widget.clearAll) {
       await mapController.clearPolylines();
     }
-    polylines.forEach((polyline) {
+    widget.polylines.forEach((polyline) {
       mapController.addPolyline(PolylineOptions(
           width: 5,
           points: polyline,
@@ -78,22 +81,17 @@ class GoogleMapsState extends State<GoogleMaps> {
     });
   }
 
-  _automaticZoom(List<List<LatLng>> polylines) {
-    List<LatLng> flatPolylines = polylines.expand((i) => i).toList();
-    if (flatPolylines.length > 5) {
-      mapController.animateCamera(
-        CameraUpdate.newLatLngBounds(
-          LatLngBounds(
-            southwest: LatLng(
-                flatPolylines.map((i) => i.latitude).toList().reduce(min),
-                flatPolylines.map((i) => i.longitude).toList().reduce(min)),
-            northeast: LatLng(
-                flatPolylines.map((i) => i.latitude).toList().reduce(max),
-                flatPolylines.map((i) => i.longitude).toList().reduce(max)),
-          ),
-          32.0,
+  _automaticZoom(flatPolylines) {
+    var latitudes = flatPolylines.map((i) => i.latitude).toList();
+    var longitudes = flatPolylines.map((i) => i.longitude).toList();
+    mapController.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          southwest: LatLng(latitudes.reduce(min), longitudes.reduce(min)),
+          northeast: LatLng(latitudes.reduce(max), longitudes.reduce(max)),
         ),
-      );
-    }
+        32.0,
+      ),
+    );
   }
 }
