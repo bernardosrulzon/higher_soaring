@@ -19,18 +19,14 @@ class GoogleMaps extends StatefulWidget {
 class GoogleMapsState extends State<GoogleMaps> {
   GoogleMapController mapController;
   Function eq = const DeepCollectionEquality().equals;
-  List<LatLng> flatPolylines;
 
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    flatPolylines = widget.polylines.expand((i) => i).toList();
     if (mapController != null) {
       if (!eq(oldWidget.polylines, widget.polylines)) {
         addPolylines();
-        if (flatPolylines.length >= 5) {
-          _automaticZoom(flatPolylines);
-        }
+        _automaticZoom();
       }
       if (widget.center != oldWidget.center && eq(oldWidget.polylines, [[]])) {
         _moveCamera();
@@ -40,7 +36,6 @@ class GoogleMapsState extends State<GoogleMaps> {
 
   @override
   Widget build(BuildContext context) {
-    flatPolylines = widget.polylines.expand((i) => i).toList();
     return GoogleMap(
       onMapCreated: (controller) => _onMapCreated(controller),
       options: GoogleMapOptions(
@@ -62,7 +57,7 @@ class GoogleMapsState extends State<GoogleMaps> {
   _onMapCreated(GoogleMapController controller) {
     mapController = controller;
     addPolylines();
-    _automaticZoom(flatPolylines);
+    _automaticZoom();
   }
 
   addPolylines() async {
@@ -81,17 +76,21 @@ class GoogleMapsState extends State<GoogleMaps> {
     });
   }
 
-  _automaticZoom(flatPolylines) {
-    var latitudes = flatPolylines.map((i) => i.latitude).toList();
-    var longitudes = flatPolylines.map((i) => i.longitude).toList();
-    mapController.animateCamera(
-      CameraUpdate.newLatLngBounds(
-        LatLngBounds(
-          southwest: LatLng(latitudes.reduce(min), longitudes.reduce(min)),
-          northeast: LatLng(latitudes.reduce(max), longitudes.reduce(max)),
+  _automaticZoom() {
+    List<LatLng> flatPolylines = widget.polylines.expand((i) => i).toList();
+    List<double> latitudes = flatPolylines.map((i) => i.latitude).toList();
+    List<double> longitudes = flatPolylines.map((i) => i.longitude).toList();
+
+    if (flatPolylines.length >= 5) {
+      mapController.animateCamera(
+        CameraUpdate.newLatLngBounds(
+          LatLngBounds(
+            southwest: LatLng(latitudes.reduce(min), longitudes.reduce(min)),
+            northeast: LatLng(latitudes.reduce(max), longitudes.reduce(max)),
+          ),
+          32.0,
         ),
-        32.0,
-      ),
-    );
+      );
+    }
   }
 }
